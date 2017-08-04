@@ -1,0 +1,10 @@
+{
+	"files.exclude": {
+		"target": true
+	},
+	"search.exclude": {
+		"target": true
+    },
+    "typescript.check.tscVersion": true,
+    "typescript.tsdk": "/usr/local/lib/node_modules/typescript/lib"
+}

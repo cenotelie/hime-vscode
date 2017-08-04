@@ -1,0 +1,100 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "Hime",
+    "scopeName": "source.hime",
+    "patterns": [
+        {
+            "include": "#comments"
+        },
+        {
+            "include": "#comments2"
+        },
+        {
+            "include": "#keywords"
+        },
+        {
+            "include": "#identifiers"
+        },
+        {
+            "include": "#numerics"
+        },
+        {
+            "include": "#strings"
+        },
+        {
+            "include": "#operators"
+        }
+    ],
+    "repository": {
+        "comments": {
+            "patterns": [
+                {
+                    "name": "comment.line.double-slash",
+                    "match": "//.*$"
+                }
+            ]
+        },
+        "comments2": {
+            "begin": "/\\*",
+            "end": "\\*/",
+            "name": "comment.block",
+            "patterns": []
+        },
+        "keywords": {
+            "patterns": [
+                {
+                    "name": "keyword.control",
+                    "match": "\\b(grammar|options|terminals|rules|context|fragment|Axiom|Separator)\\b"
+                }
+            ]
+        },
+        "identifiers": {
+            "patterns": [
+                {
+                    "name": "variable.name",
+                    "match": "\\@[_a-zA-Z][_a-zA-Z0-9]*"
+                },
+                {
+                    "name": "entity.name.class",
+                    "match": "ub\\{[_a-zA-Z0-9\\-]+\\}"
+                },
+                {
+                    "name": "entity.name.class",
+                    "match": "uc\\{[_a-zA-Z0-9\\-]+\\}"
+                },
+                {
+                    "name": "entity.name.class",
+                    "match": "U\\+[a-fA-F0-9]+"
+                }
+            ]
+        },
+        "numerics": {
+            "patterns": [
+                {
+                    "name": "constant.numeric",
+                    "match": "0|([1-9][0-9]*)"
+                }
+            ]
+        },
+        "strings": {
+            "patterns": [
+                {
+                    "name": "string.quoted.double",
+                    "match": "\"([^\\\"]|\\\\|\\\")*?\""
+                },
+                {
+                    "name": "string.quoted.single",
+                    "match": "'([^\\']|\\\\|\\')*?'"
+                }
+            ]
+        },
+        "operators": {
+            "patterns": [
+                {
+                    "name": "keyword.control",
+                    "match": "\\+|\\?|\\*|\\^|\\!|\\->?|\\#"
+                }
+            ]
+        }
+    }
+}
