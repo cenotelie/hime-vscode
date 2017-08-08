@@ -4,7 +4,7 @@ Adds support for the [Hime grammar language](https://cenotelie.fr/hime).
 
 ## Install and Prerequisites
 
-Open up VS Code and hit `F1` and type `ext` select Install Extension and type `hime-language` hit enter and reload window to enable. 
+Open up VS Code, hit `F1`, type `ext`, select Install Extension, type `hime-language`, hit enter and reload window to enable. 
 
 > **Note**: This extension requires a location installation of Java.
 > Java can be installed from [Oracle](http://www.oracle.com/technetwork/java/javase/downloads/index.html),
@@ -18,9 +18,11 @@ This extension looks for a local installation a Java using (in this order):
 
 ## Features
 
-* Syntactic coloring for the supported syntaxes.
-* Detection of semantic resources across files and syntaxes.
+* Syntax highlighting for the grammars.
+* Detection of grammar symbols (terminals, variables, etc.) and navigation.
 * Syntactic verification and other diagnostics for common issues.
+
+![Hime language in action](https://cenotelie.fr/hime/captures/demo1.gif)
 
 ## Settings
 
