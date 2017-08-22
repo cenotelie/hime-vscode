@@ -12,6 +12,7 @@ SERVER_FILE="$HOME/.m2/repository/fr/cenotelie/hime/hime-language-server/$SERVER
 
 
 # Prepare outputs
+rm -f "$OOT/hime-language-$VERSION.vsix"
 rm -rf "$ROOT/target"
 mkdir "$ROOT/target"
 
