@@ -27,7 +27,8 @@
         "hime"
     ],
     "activationEvents": [
-        "onLanguage:hime"
+        "onLanguage:hime",
+        "onCommand:hime.compile"
     ],
     "main": "./target/src/Main",
     "files": [],
@@ -69,6 +70,17 @@
                 "language": "hime",
                 "scopeName": "source.hime",
                 "path": "./languages/hime.tmLanguage.json"
+            }
+        ],
+        "commands": [
+            {
+                "command": "hime.compile",
+                "title": "Compile grammar",
+                "category": "Hime",
+                "icon": {
+                    "dark": "hime.png",
+                    "light": "hime.png"
+                }
             }
         ]
     },

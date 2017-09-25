@@ -18,13 +18,14 @@
 ******************************************************************************/
 
 import * as VSCode from "vscode";
-import * as HimeCommands from "./Commands";
-import * as HimeLspClient from "./LSPClient";
 
-export function activate(context: VSCode.ExtensionContext): void {
-    HimeCommands.registerCommands(context);
-    HimeLspClient.createLanguageClient(context);
-}
-
-export function deactivate(): void {
+/**
+ * Register commands for this extension
+ * @param context  The extension's content
+ */
+export function registerCommands(context: VSCode.ExtensionContext) {
+    let disposable = VSCode.commands.registerCommand("hime.compile", (fileUri, grammar) => {
+        console.log("Compile file " + fileUri);
+    });
+    context.subscriptions.push(disposable);
 }
