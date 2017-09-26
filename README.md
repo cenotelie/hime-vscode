@@ -60,6 +60,8 @@ If Mono is required, this extension looks for a local installation (in this orde
 
 ## License
 
-The source code to this extension is the property of the [Association Cénotélie](https://cenotelie.fr). It is available in [hime-vscode](https://bitbucket.org/cenotelie/hime-vscode) and licensed under the GNU Lesser General Public License Version 3.
+The source code to this extension is the property of the [Association Cénotélie](https://cenotelie.fr). It is available in [hime-vscode](https://bitbucket.org/cenotelie/hime-vscode) and licensed under the GNU Lesser General Public License Version 3 by the [Association Cénotélie](https://cenotelie.fr).
 
-This extension embeds a compiled version of the language server. The source code to the language server is available on [hime-language-server](https://bitbucket.org/cenotelie/hime-language-server) and licensed under the GNU Lesser General Public License Version 3 by the [Association Cénotélie](https://cenotelie.fr).
+This extension embeds a compiled version of the Hime Language Server. The source code to the language server is available on [hime-language-server](https://bitbucket.org/cenotelie/hime-language-server) and licensed under the GNU Lesser General Public License Version 3 by the [Association Cénotélie](https://cenotelie.fr).
+
+This extension also embeds a compiled version of the Hime Parser Generator. The source code to the generator is available on [hime](https://bitbucket.org/cenotelie/hime) and licensed under the GNU Lesser General Public License Version 3 by the [Association Cénotélie](https://cenotelie.fr).
