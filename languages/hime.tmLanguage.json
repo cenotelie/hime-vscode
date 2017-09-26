@@ -44,7 +44,7 @@
             "patterns": [
                 {
                     "name": "keyword.control",
-                    "match": "\\b(grammar|options|terminals|rules|context|fragment|Axiom|Separator)\\b"
+                    "match": "\\b(grammar|options|terminals|rules|context|fragment|Axiom|Separator|OutputPath|CompilationMode|ParserType|Runtime|Namespace|AccessModifier)\\b"
                 }
             ]
         },
