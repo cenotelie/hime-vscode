@@ -72,7 +72,7 @@ function serverLaunchProcess(context: VSCode.ExtensionContext, client: LanguageC
         }
         resolveJavaGetVersion(java).then(version => {
             client.outputChannel.appendLine("[INFO] Will use Java: " + java + " (version " + version + ")");
-            let jarPath = Path.resolve(context.extensionPath, "target", "server.jar");
+            let jarPath = Path.resolve(context.extensionPath, "target", "bin", "server.jar");
             let options = { cwd: VSCode.workspace.rootPath };
             client.outputChannel.appendLine("[INFO] Launching server as " + java + " -jar " + jarPath);
             let process = ChildProcess.spawn(java, ["-jar", jarPath], options);
