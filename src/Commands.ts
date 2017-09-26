@@ -43,18 +43,31 @@ export function registerCommands(context: VSCode.ExtensionContext, output: VSCod
  */
 function compileGrammar(context: VSCode.ExtensionContext, output: VSCode.OutputChannel, fileUri: string, grammar: string) {
     let himecc = Path.resolve(context.extensionPath, "target", "bin", "himecc.exe");
+    let file = fileUri.substring("file://".length);
     let options = { cwd: VSCode.workspace.rootPath };
     var child: ChildProcess.ChildProcess = null;
     if (process.platform === "win32") {
-        child = ChildProcess.spawn(himecc, [fileUri, "-g", grammar], options);
+        child = ChildProcess.spawn(himecc, [file, "-g", grammar], options);
     } else {
         let mono = resolveMono();
         if (mono == null) {
             output.appendLine("[ERROR] Failed to find required Mono installation");
             return;
         }
-        child = ChildProcess.spawn(mono, [himecc, fileUri, "-g", grammar], options);
+        child = ChildProcess.spawn(mono, [himecc, file, "-g", grammar], options);
     }
+    if (child == null) {
+        output.appendLine("[ERROR] Failed to launch himecc");
+        return;
+    }
+    child.stdout.on('data', function(data) {
+        const chunkAsString = typeof data === 'string' ? data : data.toString();
+        output.append(chunkAsString); 
+    });
+    child.stderr.on('data', function(data) {
+        const chunkAsString = typeof data === 'string' ? data : data.toString();
+        output.append(chunkAsString); 
+    });
 }
 
 /**
