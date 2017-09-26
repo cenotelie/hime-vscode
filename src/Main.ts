@@ -22,8 +22,8 @@ import * as HimeCommands from "./Commands";
 import * as HimeLspClient from "./LSPClient";
 
 export function activate(context: VSCode.ExtensionContext): void {
-    HimeCommands.registerCommands(context);
-    HimeLspClient.createLanguageClient(context);
+    let client = HimeLspClient.createLanguageClient(context);
+    HimeCommands.registerCommands(context, client.outputChannel);
 }
 
 export function deactivate(): void {

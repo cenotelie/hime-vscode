@@ -131,7 +131,7 @@ function resolveJava(): string {
     // the executable name
     let execName = (process.platform === "win32" ? "java.exe" : "java");
 
-    // is the java.home setting defined?
+    // is the hime.java setting defined?
     let settingJavaHome = VSCode.workspace.getConfiguration("hime").get("java") as string;
     if (settingJavaHome != null) {
         let result = resolveJavaInDirectory(settingJavaHome, execName);

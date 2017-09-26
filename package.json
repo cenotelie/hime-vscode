@@ -40,6 +40,10 @@
                     "type": "string",
                     "description": "Path to the home of a local Java installation"
                 },
+                "hime.mono": {
+                    "type": "string",
+                    "description": "Path to a local Mono program"
+                },
                 "hime.lsp.server": {
                     "type": "string",
                     "description": "The specification of the language server to use, either 'integrated', or 'remote'",
