@@ -1,0 +1,18 @@
+{
+    "Grammar": {
+        "prefix": "grammar",
+        "body": [
+            "grammar ${1:MyGrammar} {",
+            "    options {",
+            "        Axiom = \"file\";",
+            "        Separator = \"SEPARATOR\";",
+            "    }",
+            "    terminals {",
+            "    }",
+            "    rules {",
+            "    }",
+            "}"
+        ],
+        "description": "Basic structure for a grammar"
+    }
+}

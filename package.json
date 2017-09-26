@@ -86,6 +86,12 @@
                     "light": "hime.png"
                 }
             }
+        ],
+        "snippets": [
+            {
+                "language": "hime",
+                "path": "snippets/hime.json"
+            }
         ]
     },
     "scripts": {
