@@ -14,5 +14,20 @@
             "}"
         ],
         "description": "Basic structure for a grammar"
+    },
+    "Separator": {
+        "prefix": "SEPARATOR",
+        "body": [
+            "NEW_LINE      -> U+000D /* CR */",
+            "              |  U+000A /* LF */",
+            "              |  U+000D U+000A /* CR LF */",
+            "              |  U+2028 /* LS */",
+            "              |  U+2029 /* PS */ ;",
+            "WHITE_SPACE   -> U+0020 | U+0009 | U+000B | U+000C ;",
+            "COMMENT_LINE  -> '//' (.* - (.* NEW_LINE .*)) NEW_LINE ;",
+            "COMMENT_BLOCK -> '/*' (.* - (.* '*/' .*)) '*/' ;",
+            "SEPARATOR     -> (NEW_LINE | WHITE_SPACE | COMMENT_LINE | COMMENT_BLOCK)+;"
+        ],
+        "description": "Common definition for a separator token using C-like comments"
     }
 }
