@@ -25,17 +25,112 @@ import * as Himecc from "./Himecc";
  * @param context  The extension's content
  */
 export function registerCommand(context: VSCode.ExtensionContext) {
+    // register UI for the compilation operation
+    let virtualDocProvider = new MyDocProvider();
+    let registration = VSCode.workspace.registerTextDocumentContentProvider('hime-compile', virtualDocProvider);
+    context.subscriptions.push(registration);
+
+    // register command
     let disposable = VSCode.commands.registerCommand("hime.compile", (fileUri: string, grammar: string) => {
-        Himecc.compileGrammar(context, fileUri, grammar, new MyObserver(), []);
+        let virtualDocUri = VSCode.Uri.parse("hime-compile://authority/grammar-compile/" + Math.random().toString());
+        return VSCode.commands.executeCommand("vscode.previewHtml", virtualDocUri, VSCode.ViewColumn.Two, "Hime Grammar Compilation").then((success) => {
+            Himecc.compileGrammar(context, fileUri, grammar, new MyObserver(virtualDocUri, virtualDocProvider), []);
+        }, (reason) => {
+            VSCode.window.showErrorMessage(reason);
+        });
     });
     context.subscriptions.push(disposable);
 }
 
+/**
+ * An observer of a compilation operation
+ */
 class MyObserver implements Himecc.CompilationObserver {
-    onLog(message: string): void {
-        
+    /**
+     * The URI for the corresponding virtual document
+     */
+    public virtualDocUri: VSCode.Uri;
+    /**
+     * The document provider to notify for updates
+     */
+    private documentProvider: MyDocProvider;
+    /**
+     * The compilation messages
+     */
+    private messages: string[];
+    /**
+     * Whether the operation finished
+     */
+    private isFinished: boolean;
+    /**
+     * Whether errors have been emitted by the compilation operation
+     */
+    private isOnError: boolean;
+
+    /**
+     * Initializes this observer
+     * @param virtualDocUri    The URI for the corresponding virtual document
+     * @param documentProvider The document provider to notify for updates
+     */
+    constructor(virtualDocUri: VSCode.Uri, documentProvider: MyDocProvider) {
+        this.virtualDocUri = virtualDocUri;
+        this.documentProvider = documentProvider;
+        this.messages = [];
+        this.isFinished = false;
+        this.isOnError = false;
     }
-    onFinished(): void {
-        
+
+    public onLog(message: string): void {
+        this.messages = this.messages.concat(message);
+        this.isOnError = this.isOnError || message.indexOf("[ERROR]") == 0;
+        this.documentProvider.update(this);
+    }
+
+    public onFinished(): void {
+        this.isFinished = true;
+        this.documentProvider.update(this);
+    }
+
+    /**
+     * Gets the HTML document for the corresponding operation
+     * @return The HTML document
+     */
+    public getDocument(): string {
+        return "<html lang='en'><body>Hello world!</body></html>";
+    }
+}
+
+interface IHash {
+    [details: string]: MyObserver;
+}
+
+class MyDocProvider implements VSCode.TextDocumentContentProvider {
+    /**
+     * The event emitter for updates
+     */
+    private _onDidChange = new VSCode.EventEmitter<VSCode.Uri>();
+    /**
+     * The compilation tasks going on
+     */
+    private tasks: IHash = {};
+
+    get onDidChange(): VSCode.Event<VSCode.Uri> {
+        return this._onDidChange.event;
+    }
+
+    /**
+     * When a compilation operation has been updated
+     * @param observer The updated observer 
+     */
+    public update(observer: MyObserver) {
+        this.tasks[observer.virtualDocUri.toString()] = observer;
+        this._onDidChange.fire(observer.virtualDocUri);
+    }
+
+    public provideTextDocumentContent(uri: VSCode.Uri): string {
+        let observer = this.tasks[uri.toString()];
+        if (observer == null)
+            return "<html lang='en'><body>Unknown compilation operation!</body></html>"
+        return observer.getDocument();
     }
 }
