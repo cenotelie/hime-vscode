@@ -18,13 +18,24 @@
 ******************************************************************************/
 
 import * as VSCode from "vscode";
-import * as LSPClient from "./LSPClient";
-import * as CommandCompile from "./CommandCompile";
+import * as Himecc from "./Himecc";
 
-export function activate(context: VSCode.ExtensionContext): void {
-    let client = LSPClient.createLanguageClient(context);
-    CommandCompile.registerCommand(context);
+/**
+ * Register commands for this extension
+ * @param context  The extension's content
+ */
+export function registerCommand(context: VSCode.ExtensionContext) {
+    let disposable = VSCode.commands.registerCommand("hime.compile", (fileUri: string, grammar: string) => {
+        Himecc.compileGrammar(context, fileUri, grammar, new MyObserver(), []);
+    });
+    context.subscriptions.push(disposable);
 }
 
-export function deactivate(): void {
+class MyObserver implements Himecc.CompilationObserver {
+    onLog(message: string): void {
+        
+    }
+    onFinished(): void {
+        
+    }
 }

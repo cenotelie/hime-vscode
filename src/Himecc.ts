@@ -23,50 +23,57 @@ import * as ChildProcess from "child_process";
 import * as VSCode from "vscode";
 
 /**
- * Register commands for this extension
- * @param context  The extension's content
- * @param output   The output channel to write to
+ * An observer for a compilation task
  */
-export function registerCommands(context: VSCode.ExtensionContext, output: VSCode.OutputChannel) {
-    let disposable = VSCode.commands.registerCommand("hime.compile", (fileUri: string, grammar: string) => {
-        compileGrammar(context, output, fileUri, grammar);
-    });
-    context.subscriptions.push(disposable);
+export interface CompilationObserver {
+    /**
+     * When a log message appears during the compilation operation
+     * @param message The message that appeared on the log
+     */
+    onLog(message: string): void;
+    /**
+     * When the operation finished
+     */
+    onFinished(): void;
 }
 
 /**
  * Compiles a grammar
- * @param context The extension's content
- * @param output  The output channel to write to
- * @param fileUri The URI to the file that contains the grammar
- * @param grammar The name of the grammar to compile
+ * @param context    The extension's content
+ * @param fileUri    The URI to the file that contains the grammar
+ * @param grammar    The name of the grammar to compile
+ * @param observer   The observer for the compilation operation
+ * @param parameters The additional compilation parameters
  */
-function compileGrammar(context: VSCode.ExtensionContext, output: VSCode.OutputChannel, fileUri: string, grammar: string) {
+export function compileGrammar(context: VSCode.ExtensionContext, fileUri: string, grammar: string, observer: CompilationObserver, parameters: string[]) {
     let himecc = Path.resolve(context.extensionPath, "target", "bin", "himecc.exe");
     let file = fileUri.substring("file://".length);
     let options = { cwd: VSCode.workspace.rootPath };
     var child: ChildProcess.ChildProcess = null;
     if (process.platform === "win32") {
-        child = ChildProcess.spawn(himecc, [file, "-g", grammar], options);
+        child = ChildProcess.spawn(himecc, [file, "-g", grammar].concat(parameters), options);
     } else {
         let mono = resolveMono();
         if (mono == null) {
-            output.appendLine("[ERROR] Failed to find required Mono installation");
+            VSCode.window.showErrorMessage("Hime: Failed to find required Mono installation");
             return;
         }
-        child = ChildProcess.spawn(mono, [himecc, file, "-g", grammar], options);
+        child = ChildProcess.spawn(mono, [himecc, file, "-g", grammar].concat(parameters), options);
     }
     if (child == null) {
-        output.appendLine("[ERROR] Failed to launch himecc");
+        VSCode.window.showErrorMessage("Hime: Failed to launch himecc");
         return;
     }
-    child.stdout.on('data', function(data) {
+    child.stdout.on('data', function (data) {
         const chunkAsString = typeof data === 'string' ? data : data.toString();
-        output.append(chunkAsString); 
+        observer.onLog(chunkAsString);
     });
-    child.stderr.on('data', function(data) {
+    child.stderr.on('data', function (data) {
         const chunkAsString = typeof data === 'string' ? data : data.toString();
-        output.append(chunkAsString); 
+        observer.onLog(chunkAsString);
+    });
+    child.on('close', function (code) {
+        observer.onFinished();
     });
 }
 

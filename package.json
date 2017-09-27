@@ -28,7 +28,8 @@
     ],
     "activationEvents": [
         "onLanguage:hime",
-        "onCommand:hime.compile"
+        "onCommand:hime.compile",
+        "onCommand:hime.test"
     ],
     "main": "./target/src/Main",
     "files": [],
@@ -80,6 +81,15 @@
             {
                 "command": "hime.compile",
                 "title": "Compile grammar",
+                "category": "Hime",
+                "icon": {
+                    "dark": "hime.png",
+                    "light": "hime.png"
+                }
+            },
+            {
+                "command": "hime.test",
+                "title": "Test grammar on input text",
                 "category": "Hime",
                 "icon": {
                     "dark": "hime.png",
