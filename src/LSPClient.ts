@@ -38,7 +38,7 @@ export function createLanguageClient(context: VSCode.ExtensionContext): Language
             fileEvents: [
                 VSCode.workspace.createFileSystemWatcher("**/*.gram"),
             ]
-        }, outputChannelName: "hime-language"
+        }, outputChannelName: "Hime"
     };
     function createServer(): Promise<StreamInfo> {
         let serverType = VSCode.workspace.getConfiguration("hime").get("lsp.server");

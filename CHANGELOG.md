@@ -5,8 +5,9 @@
 * Features:
     * Support for symbol highlighting in grammars.
     * Support for mouse hover on grammar symbols.
+    * Support for symbol renaming.
+    * Support for grammar compiling within VS Code.
     * Added common grammar snippets.
-    * Added support for grammar compiling within VS Code.
 * Fixes:
     * Fixed syntactic coloring for the support of new keywords.
 
