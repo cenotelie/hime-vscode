@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" id="message-error" version="1.1">
+  <path
+     style="fill:#ffffff;fill-rule:evenodd;stroke:#034091;stroke-width:8;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1"
+     d="m 15,70 0,-45 70,0 0,45 -35,0 -20,20 0,-20 z"/>
+  <rect
+     style="fill:#cb0404;fill-opacity:1;stroke:none;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+     width="10" height="25" x="-3.4098969" y="56.442909"
+     transform="matrix(0.70710678,-0.70710678,0.70710678,0.70710678,0,0)" />
+  <rect
+     style="fill:#cb0404;fill-opacity:1;stroke:none;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+     width="25" height="10" x="-10.909901" y="63.942913"
+     transform="matrix(0.70710678,-0.70710678,0.70710678,0.70710678,0,0)" />
+</svg>

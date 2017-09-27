@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" id="result-ok" version="1.1">
+  <circle
+     style="fill:#ffffff;fill-opacity:1;stroke:#034091;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+     cx="50" cy="50" r="40" />
+  <path
+     style="fill:#00914d;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="M 18.276912,50.262829 46.740956,79.625737 79.998945,34.382887 44.943228,60.44996 Z"/>
+</svg>

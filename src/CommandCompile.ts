@@ -18,6 +18,7 @@
 ******************************************************************************/
 
 import * as VSCode from "vscode";
+import * as Path from "path";
 import * as Himecc from "./Himecc";
 
 /**
@@ -25,6 +26,8 @@ import * as Himecc from "./Himecc";
  * @param context  The extension's content
  */
 export function registerCommand(context: VSCode.ExtensionContext) {
+    let assetsPath = Path.resolve(context.extensionPath, "assets");
+
     // register UI for the compilation operation
     let virtualDocProvider = new MyDocProvider();
     let registration = VSCode.workspace.registerTextDocumentContentProvider('hime-compile', virtualDocProvider);
@@ -34,7 +37,7 @@ export function registerCommand(context: VSCode.ExtensionContext) {
     let disposable = VSCode.commands.registerCommand("hime.compile", (fileUri: string, grammar: string) => {
         let virtualDocUri = VSCode.Uri.parse("hime-compile://authority/grammar-compile/" + Math.random().toString());
         return VSCode.commands.executeCommand("vscode.previewHtml", virtualDocUri, VSCode.ViewColumn.Two, "Hime Grammar Compilation").then((success) => {
-            Himecc.compileGrammar(context, fileUri, grammar, new MyObserver(virtualDocUri, virtualDocProvider), []);
+            Himecc.compileGrammar(context, fileUri, grammar, new MyObserver(assetsPath, virtualDocUri, virtualDocProvider), []);
         }, (reason) => {
             VSCode.window.showErrorMessage(reason);
         });
@@ -46,6 +49,10 @@ export function registerCommand(context: VSCode.ExtensionContext) {
  * An observer of a compilation operation
  */
 class MyObserver implements Himecc.CompilationObserver {
+    /**
+     * Path to the assets
+     */
+    private assetsPath: string;
     /**
      * The URI for the corresponding virtual document
      */
@@ -69,10 +76,12 @@ class MyObserver implements Himecc.CompilationObserver {
 
     /**
      * Initializes this observer
+     * @param assetsPath       Path to the assets
      * @param virtualDocUri    The URI for the corresponding virtual document
      * @param documentProvider The document provider to notify for updates
      */
-    constructor(virtualDocUri: VSCode.Uri, documentProvider: MyDocProvider) {
+    constructor(assetsPath: string, virtualDocUri: VSCode.Uri, documentProvider: MyDocProvider) {
+        this.assetsPath = assetsPath;
         this.virtualDocUri = virtualDocUri;
         this.documentProvider = documentProvider;
         this.messages = [];
@@ -96,7 +105,37 @@ class MyObserver implements Himecc.CompilationObserver {
      * @return The HTML document
      */
     public getDocument(): string {
-        return "<html lang='en'><body>Hello world!</body></html>";
+        var content = "<html lang='en'><body style='width: 100%;'>";
+        for (var index in this.messages) {
+            let message = this.messages[index];
+            content += "<img width='30px' src='file://";
+            content += this.assetsPath + "/message-";
+            if (message.indexOf("[INFO]") == 0)
+                content += "info";
+            else if (message.indexOf("[WARNING]") == 0)
+                content += "warning";
+            else if (message.indexOf("[ERROR]") == 0)
+                content += "error";
+            content += ".svg'/><span>";
+            content += message;
+            content += "</span><br/>";
+        }
+        content += "<br/>";
+        if (!this.isFinished) {
+            content += "<img width='50px' src='file://";
+            content += this.assetsPath + "/spinner.gif";
+            content += "'/> Compilation is ongoing ...";
+        } else if (this.isOnError) {
+            content += "<img width='50px' src='file://";
+            content += this.assetsPath + "/result-failed.svg";
+            content += "'/> Compilation failed!";
+        } else {
+            content += "<img width='50px' src='file://";
+            content += this.assetsPath + "/result-ok.svg";
+            content += "'/> OK";
+        }
+        content += "</body></html>";
+        return content;
     }
 }
 
