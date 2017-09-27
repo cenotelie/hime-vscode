@@ -36,7 +36,7 @@ export function registerCommand(context: VSCode.ExtensionContext) {
     // register command
     let disposable = VSCode.commands.registerCommand("hime.compile", (fileUri: string, grammar: string) => {
         let virtualDocUri = VSCode.Uri.parse("hime-compile://authority/grammar-compile/" + Math.random().toString());
-        return VSCode.commands.executeCommand("vscode.previewHtml", virtualDocUri, VSCode.ViewColumn.Two, "Hime Grammar Compilation").then((success) => {
+        return VSCode.commands.executeCommand("vscode.previewHtml", virtualDocUri, VSCode.ViewColumn.Two, grammar + " Compilation").then((success) => {
             Himecc.compileGrammar(context, fileUri, grammar, new MyObserver(assetsPath, virtualDocUri, virtualDocProvider), []);
         }, (reason) => {
             VSCode.window.showErrorMessage(reason);
