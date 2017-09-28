@@ -27,16 +27,31 @@ import * as Himecc from "./Himecc";
  * @param output   The output channel to use
  */
 export function registerCommand(context: VSCode.ExtensionContext, output: VSCode.OutputChannel) {
+    let stats = {
+        operationCount: 0
+    };
     // register command
     let disposable = VSCode.commands.registerCommand("hime.compile", (fileUri: string, grammar: string) => {
+        let hideCommandName = "hime.compile.onClick." + stats.operationCount.toString();
+        stats.operationCount = stats.operationCount + 1;
+        let statusItem = VSCode.window.createStatusBarItem(VSCode.StatusBarAlignment.Left);
+        statusItem.text = grammar;
+        statusItem.command = hideCommandName;
+        statusItem.tooltip = "See log";
+
+        let disposable2 = VSCode.commands.registerCommand(hideCommandName, () => {
+            output.show(true);
+            statusItem.dispose();
+        });
+        context.subscriptions.push(disposable2);
+
         VSCode.window.withProgress({
                 location: VSCode.ProgressLocation.Window,
-                title: "Comiling grammar " + grammar
+                title: "Compiling grammar " + grammar
             },
             progress => {
                 return new Promise((resolve, reject) => {
-                    Himecc.compileGrammar(context, fileUri, grammar, new MyObserver(output, progress, resolve), []);
-                    resolve();
+                    Himecc.compileGrammar(context, fileUri, grammar, new MyObserver(output, progress, statusItem, resolve), []);
                 });
             }
         );
@@ -57,6 +72,10 @@ class MyObserver implements Himecc.CompilationObserver {
      */
     private progress: VSCode.Progress<{message?: string}>;
     /**
+     * The associated status bas item
+     */
+    private statusItem: VSCode.StatusBarItem;
+    /**
      * The resolve callback to callat the end
      */
     private resolve: (value?: {} | Thenable<{}>) => void;
@@ -67,13 +86,15 @@ class MyObserver implements Himecc.CompilationObserver {
 
     /**
      * Initializes this observer
-     * @param output   The output channel for the operation
-     * @param progress The progress report for the UI
-     * @param resolve  The resolve callback to callat the end
+     * @param output     The output channel for the operation
+     * @param progress   The progress report for the UI
+     * @param statusItem The associated status bas item
+     * @param resolve    The resolve callback to callat the end
      */
-    constructor(output: VSCode.OutputChannel, progress: VSCode.Progress<{message?: string}>, resolve: (value?: {} | Thenable<{}>) => void) {
+    constructor(output: VSCode.OutputChannel, progress: VSCode.Progress<{message?: string}>, statusItem: VSCode.StatusBarItem, resolve: (value?: {} | Thenable<{}>) => void) {
         this.output = output;
         this.progress = progress;
+        this.statusItem = statusItem;
         this.resolve = resolve;
         this.isOnError = false;
     }
@@ -85,6 +106,13 @@ class MyObserver implements Himecc.CompilationObserver {
     }
 
     public onFinished(): void {
+        if (this.isOnError) {
+            this.statusItem.text = "$(x) Compilation of " + this.statusItem.text + " failed!";
+            this.statusItem.color = new VSCode.ThemeColor("errorForeground");
+            this.statusItem.show();
+        } else {
+            this.statusItem.dispose();
+        }
         this.resolve({
             message: this.isOnError ? "Failed!" : "OK!"
         });
