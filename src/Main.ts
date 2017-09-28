@@ -23,7 +23,7 @@ import * as CommandCompile from "./CommandCompile";
 
 export function activate(context: VSCode.ExtensionContext): void {
     let client = LSPClient.createLanguageClient(context);
-    CommandCompile.registerCommand(context);
+    CommandCompile.registerCommand(context, client.outputChannel);
 }
 
 export function deactivate(): void {
