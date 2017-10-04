@@ -9,7 +9,7 @@ HASH=$(hg -R "$ROOT" --debug id -i)
 
 SERVER_VERSION="1.0.0-SNAPSHOT"
 SERVER_FILE="$HOME/.m2/repository/fr/cenotelie/hime/hime-language-server/$SERVER_VERSION/hime-language-server-$SERVER_VERSION-jar-with-dependencies.jar"
-HIMECC_VERSION="3.1.0"
+DIST_VERSION="3.2.0"
 
 # Prepare outputs
 rm -f "$OOT/hime-language-$VERSION.vsix"
@@ -28,13 +28,18 @@ else
     fi
 fi
 
-wget -q -O "$ROOT/target/hime-dist.zip" "https://bitbucket.org/cenotelie/hime/downloads/hime-v$HIMECC_VERSION.zip"
-DIST=$(unzip "$ROOT/target/hime-dist.zip" -d "$ROOT/target" | grep himecc.exe | grep -o -E "(hime-$HIMECC_VERSION-[[:alnum:]]+)")
+wget -q -O "$ROOT/target/hime-dist.zip" "https://bitbucket.org/cenotelie/hime/downloads/hime-v$DIST_VERSION.zip"
+unzip "$ROOT/target/hime-dist.zip" -d "$ROOT/target"
+mv "$ROOT/target/hime-$DIST_VERSION/net461"    "$ROOT/target/bin/net461"
+mv "$ROOT/target/hime-$DIST_VERSION/netcore20" "$ROOT/target/bin/netcore20"
+mv "$ROOT/target/hime-$DIST_VERSION/himecc"    "$ROOT/target/bin/himecc"
+mv "$ROOT/target/hime-$DIST_VERSION/parseit"   "$ROOT/target/bin/parseit"
 rm "$ROOT/target/hime-dist.zip"
-mv "$ROOT/target/$DIST/Hime.Redist.dll" "$ROOT/target/bin/Hime.Redist.dll"
-mv "$ROOT/target/$DIST/Hime.CentralDogma.dll" "$ROOT/target/bin/Hime.CentralDogma.dll"
-mv "$ROOT/target/$DIST/himecc.exe" "$ROOT/target/bin/himecc.exe"
-rm -rf "$ROOT/target/$DIST"
+rm -rf "$ROOT/target/hime-$DIST_VERSION"
+rm -f "$ROOT/target/bin/net461/"*.pdb
+rm -f "$ROOT/target/bin/net461/"*.xml
+rm -f "$ROOT/target/bin/netcore20/"*.pdb
+rm -f "$ROOT/target/bin/netcore20/"*.xml
 
 # Inject commit hash into package.json
 sed -i "s/\"commit\": \".*\"/\"commit\": \"$HASH\"/" "$ROOT/package.json"
