@@ -19,7 +19,7 @@
 
 import * as VSCode from "vscode";
 import * as Path from "path";
-import * as Himecc from "./Himecc";
+import * as Hime from "./hime";
 
 /**
  * Register commands for this extension
@@ -51,7 +51,7 @@ export function registerCommand(context: VSCode.ExtensionContext, output: VSCode
             },
             progress => {
                 return new Promise((resolve, reject) => {
-                    Himecc.compileGrammar(context, fileUri, grammar, new MyObserver(output, progress, statusItem, resolve), []);
+                    Hime.compileGrammar(context, fileUri, grammar, new MyObserver(output, progress, statusItem, resolve), []);
                 });
             }
         );
@@ -62,7 +62,7 @@ export function registerCommand(context: VSCode.ExtensionContext, output: VSCode
 /**
  * An observer of a compilation operation
  */
-class MyObserver implements Himecc.CompilationObserver {
+class MyObserver implements Hime.ProcessObserver {
     /**
      * The output channel for the operation
      */

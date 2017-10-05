@@ -18,12 +18,14 @@
 ******************************************************************************/
 
 import * as VSCode from "vscode";
-import * as LSPClient from "./LSPClient";
-import * as CommandCompile from "./CommandCompile";
+import * as HimeLsp from "./himeLsp";
+import * as HimeCompile from "./himeCompile";
+import * as HimeTest from "./himeTest";
 
 export function activate(context: VSCode.ExtensionContext): void {
-    let client = LSPClient.createLanguageClient(context);
-    CommandCompile.registerCommand(context, client.outputChannel);
+    let client = HimeLsp.createLanguageClient(context);
+    HimeCompile.registerCommand(context, client.outputChannel);
+    HimeTest.registerCommand(context);
 }
 
 export function deactivate(): void {

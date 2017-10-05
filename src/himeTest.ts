@@ -19,7 +19,7 @@
 
 import * as VSCode from "vscode";
 import * as Path from "path";
-import * as Himecc from "./Himecc";
+import * as Hime from "./hime";
 
 /**
  * Register commands for this extension
@@ -37,7 +37,7 @@ export function registerCommand(context: VSCode.ExtensionContext) {
     let disposable = VSCode.commands.registerCommand("hime.test", (fileUri: string, grammar: string) => {
         let virtualDocUri = VSCode.Uri.parse("hime-test://authority/grammar-test/" + Math.random().toString());
         return VSCode.commands.executeCommand("vscode.previewHtml", virtualDocUri, VSCode.ViewColumn.Two, grammar + " Test").then((success) => {
-            Himecc.compileGrammar(context, fileUri, grammar, new MyObserver(assetsPath, virtualDocUri, virtualDocProvider), []);
+            Hime.compileGrammar(context, fileUri, grammar, new MyObserver(assetsPath, virtualDocUri, virtualDocProvider), []);
         }, (reason) => {
             VSCode.window.showErrorMessage(reason);
         });
@@ -48,7 +48,7 @@ export function registerCommand(context: VSCode.ExtensionContext) {
 /**
  * An observer of a compilation operation
  */
-class MyObserver implements Himecc.CompilationObserver {
+class MyObserver implements Hime.ProcessObserver {
     /**
      * Path to the assets
      */
