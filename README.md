@@ -6,24 +6,17 @@ Adds support for the [Hime grammar language](https://cenotelie.fr/hime).
 
 Open up VS Code, hit `F1`, type `ext`, select Install Extension, type `hime-language`, hit enter and reload window to enable. 
 
-> **Note**: This extension requires a local installation of Java.
+> **Warning**: This extension requires a local installation of Java.
 > Java can be installed from [Oracle](http://www.oracle.com/technetwork/java/javase/downloads/index.html),
 > or from the [OpenJDK](http://openjdk.java.net/install/) project.
 
-> **Note**: In order to compile grammars, this extension requires a local installation of the .Net framework,
-> or [Mono](http://www.mono-project.com/download/).
-> On Windows, the .Net framework should already be locally installed, Mono will not be used.
-> On other OS, you can install [Mono](http://www.mono-project.com/download/).
+> **Note**: For the support of grammar compilation and testing only, this extension also requires a local installation of the .Net Framework on Windows, which should be pre-installed with  any modern distribution.
+> For other OS, this extension requires a location installation of either [Mono](http://www.mono-project.com/download/) or [.Net Core Runtime 2.0.0](https://www.microsoft.com/net/download/core).
 
 This extension looks for a local installation a Java using (in this order):
 
 * The `hime.java` configuration of VSCode.
 * The `JAVA_HOME` environment variable.
-* The `PATH` environment variable.
-
-If Mono is required, this extension looks for a local installation (in this order):
-
-* The `hime.mono` configuration of VSCode.
 * The `PATH` environment variable.
 
 ## Features
@@ -40,11 +33,6 @@ If Mono is required, this extension looks for a local installation (in this orde
 
 * The path to a location installation of Java.
 * If set, this specification of Java will be used before others.
-
-`hime.mono { string }`
-
-* The path to a location Mono executable
-* If set, this specification of Mono will be used before others.
 
 `hime.lsp.server { integrated | remote }`
 

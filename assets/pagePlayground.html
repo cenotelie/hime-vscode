@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <title>Playground</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M"
+        crossorigin="anonymous">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        input {
+            display: none;
+        }
+
+        input~ul {
+            display: none;
+        }
+
+        input:checked~ul {
+            display: block;
+        }
+
+        input~.fa-angle-double-down {
+            display: none;
+        }
+
+        input:checked~.fa-angle-double-right {
+            display: none;
+        }
+
+        input:checked~.fa-angle-double-down {
+            display: inline;
+        }
+
+        li {
+            display: block;
+            padding: 0.2em;
+            border: 1px solid transparent;
+        }
+
+        li:hover {
+            border: 1px solid grey;
+            border-radius: 3px;
+        }
+
+        label:hover {
+            background-color: lightblue;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="body">
+        <div class="container">
+            <div class="row" style="padding-top: 25px;">
+            </div>
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#collapseBuildLog" aria-expanded="false"
+                        aria-controls="collapseBuildLog">
+                        Show/Hide build log
+                    </button>
+                    <span id="status" style="padding-left: 25px;"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col" style="padding-top: 10px;">
+                    <div class="collapse" id="collapseBuildLog">
+                        <div class="card card-body" id="buildLog"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col" style="padding-top: 10px;">
+                    <textarea rows="7" id="input" class="container-fluid"></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <a class="btn btn-primary" href="#" role="button">Try this!</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col" style="padding-top: 10px;">
+                    <div class="card card-body" id="result"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1"
+        crossorigin="anonymous"></script>
+    <script>
+        var ROOT = "";
+        var STATE = "";
+        var BUILD = [];
+        var INPUT = "";
+        var RESULT = {};
+
+        function renderStatus() {
+            var status = document.getElementById("status");
+            if (STATE == "building") {
+                status.appendChild(document.createTextNode("Building ..."));
+                var image = document.createElement("img");
+                image.width = "25";
+                image.src = ROOT + "spinner.gif";
+                status.appendChild(image);
+            } else if (STATE == "ready") {
+                status.appendChild(document.createTextNode("Ready!"));
+                var image = document.createElement("img");
+                image.width = "25";
+                image.src = ROOT + "result-ok.svg";
+                status.appendChild(image);
+            } else if (STATE == "builderror") {
+                status.appendChild(document.createTextNode("Build failed!"));
+                var image = document.createElement("img");
+                image.width = "25";
+                image.src = ROOT + "result-failed.svg";
+                status.appendChild(image);
+            } else if (STATE == "parsing") {
+                status.appendChild(document.createTextNode("Parsing input ..."));
+                var image = document.createElement("img");
+                image.width = "25";
+                image.src = ROOT + "spinner.gif";
+                status.appendChild(image);
+            }
+        }
+
+        function renderBuild() {
+            var log = document.getElementById("buildLog");
+            for (var i = 0; i != BUILD.length; i++) {
+                var entry = document.createElement("div");
+                entry.classList.add("alert");
+                entry.role = "alert";
+                entry.appendChild(document.createTextNode(BUILD[i]));
+                if (BUILD[i].startsWith("[INFO]"))
+                    entry.classList.add("alert-info");
+                else if (BUILD[i].startsWith("[WARNING]"))
+                    entry.classList.add("alert-warning");
+                 else if (BUILD[i].startsWith("[ERROR]"))
+                    entry.classList.add("alert-danger");
+                log.appendChild(entry);
+            }
+        }
+
+        function renderResult() {
+            if (!RESULT.hasOwnProperty("errors"))
+                return;
+            if (RESULT.errors.length > 0) {
+
+            } else {
+                var ul = document.createElement("ul");
+                renderAST(ul, RESULT.root);
+                document.getElementById("result").appendChild(ul);
+            }
+        }
+
+        function renderParseErrors() {
+
+        }
+
+        function renderASTNodeString(node) {
+            if (node.hasOwnProperty("value")) {
+                return node.symbol.name + ": \"" + node.value + "\"";
+            } else {
+                return node.symbol.name;
+            }
+        }
+
+        function renderAST(domTarget, node) {
+            var li = document.createElement("li");
+            if (node.children.length == 0) {
+                li.appendChild(document.createTextNode(renderASTNodeString(node)));
+                domTarget.appendChild(li);
+                return;
+            }
+            var input = document.createElement("input");
+            input.type = "checkbox";
+            input.id = Math.random().toString() + "-" + Math.random().toString()+ "-" + Math.random().toString()+ "-" + Math.random().toString();
+            li.appendChild(input);
+            var i1 = document.createElement("i");
+            i1.classList.add("fa");
+            i1.classList.add("fa-angle-double-right");
+            li.appendChild(i1);
+            var i2 = document.createElement("i");
+            i2.classList.add("fa");
+            i2.classList.add("fa-angle-double-down");
+            li.appendChild(i2);
+            var label = document.createElement("label");
+            label.htmlFor = input.id;
+            label.appendChild(document.createTextNode(renderASTNodeString(node)));
+            li.appendChild(label);
+            var ul = document.createElement("ul");
+            li.appendChild(ul);
+            for (var i = 0; i != node.children.length; i++) {
+                renderAST(ul, node.children[i]);
+            }
+            domTarget.appendChild(li);
+        }
+
+        renderStatus();
+        renderBuild();
+        renderResult();
+        document.getElementById("input").textContent = INPUT;
+    </script>
+</body>
+
+</html>

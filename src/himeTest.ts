@@ -19,6 +19,7 @@
 
 import * as VSCode from "vscode";
 import * as Path from "path";
+import * as FS from "fs";
 import * as Hime from "./hime";
 
 /**
@@ -73,6 +74,10 @@ class MyObserver implements Hime.ProcessObserver {
      * Whether errors have been emitted by the compilation operation
      */
     private isOnError: boolean;
+    /**
+     * The current state of this operation
+     */
+    private state: string;
 
     /**
      * Initializes this observer
@@ -87,6 +92,7 @@ class MyObserver implements Hime.ProcessObserver {
         this.messages = [];
         this.isFinished = false;
         this.isOnError = false;
+        this.state = "building";
     }
 
     public onLog(message: string): void {
@@ -97,6 +103,7 @@ class MyObserver implements Hime.ProcessObserver {
 
     public onFinished(): void {
         this.isFinished = true;
+        this.state = this.isOnError ? "builderror" : "ready";
         this.documentProvider.update(this);
     }
 
@@ -105,37 +112,11 @@ class MyObserver implements Hime.ProcessObserver {
      * @return The HTML document
      */
     public getDocument(): string {
-        var content = "<html lang='en'><body style='width: 100%;'>";
-        for (var index in this.messages) {
-            let message = this.messages[index];
-            content += "<img width='30px' src='file://";
-            content += this.assetsPath + "/message-";
-            if (message.indexOf("[INFO]") == 0)
-                content += "info";
-            else if (message.indexOf("[WARNING]") == 0)
-                content += "warning";
-            else if (message.indexOf("[ERROR]") == 0)
-                content += "error";
-            content += ".svg'/><span>";
-            content += message;
-            content += "</span><br/>";
-        }
-        content += "<br/>";
-        if (!this.isFinished) {
-            content += "<img width='50px' src='file://";
-            content += this.assetsPath + "/spinner.gif";
-            content += "'/> Compilation is ongoing ...";
-        } else if (this.isOnError) {
-            content += "<img width='50px' src='file://";
-            content += this.assetsPath + "/result-failed.svg";
-            content += "'/> Compilation failed!";
-        } else {
-            content += "<img width='50px' src='file://";
-            content += this.assetsPath + "/result-ok.svg";
-            content += "'/> OK";
-        }
-        content += "</body></html>";
-        return content;
+        let document = FS.readFileSync(this.assetsPath + "/pagePlayground.html", "utf8");
+        document = document.replace("var ROOT = \"\";", "var ROOT = \"file://" + this.assetsPath + "/\";");
+        document = document.replace("var STATE = \"\";", "var STATE = \"" + this.state + "\";");
+        document = document.replace("var BUILD = [];", "var BUILD = " + JSON.stringify(this.messages) + ";");
+        return document;
     }
 }
 
