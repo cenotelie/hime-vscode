@@ -18,6 +18,7 @@
 ******************************************************************************/
 
 import * as VSCode from "vscode";
+import * as OS from "os";
 import * as Path from "path";
 import * as FS from "fs";
 import * as Hime from "./hime";
@@ -38,12 +39,17 @@ export function registerCommand(context: VSCode.ExtensionContext) {
     let disposable = VSCode.commands.registerCommand("hime.test", (fileUri: string, grammar: string) => {
         let virtualDocUri = VSCode.Uri.parse("hime-test://authority/grammar-test/" + Math.random().toString());
         return VSCode.commands.executeCommand("vscode.previewHtml", virtualDocUri, VSCode.ViewColumn.Two, grammar + " Test").then((success) => {
-            Hime.compileGrammar(context, fileUri, grammar, new MyObserver(assetsPath, virtualDocUri, virtualDocProvider), []);
+            Hime.compileGrammar(context, fileUri, grammar, new MyObserver(assetsPath, virtualDocUri, virtualDocProvider), ["-o:assembly"]);
         }, (reason) => {
             VSCode.window.showErrorMessage(reason);
         });
     });
     context.subscriptions.push(disposable);
+
+    let disposable2 = VSCode.commands.registerCommand("hime.doTryParse", (virtualDocUri: string, input: string) => {
+        virtualDocProvider.doTryParse(VSCode.Uri.parse(virtualDocUri), input);
+    });
+    context.subscriptions.push(disposable2);
 }
 
 /**
@@ -114,9 +120,21 @@ class MyObserver implements Hime.ProcessObserver {
     public getDocument(): string {
         let document = FS.readFileSync(this.assetsPath + "/pagePlayground.html", "utf8");
         document = document.replace("var ROOT = \"\";", "var ROOT = \"file://" + this.assetsPath + "/\";");
+        document = document.replace("var DOCID = \"\";", "var DOCID = \"" + this.virtualDocUri.toString() + "\";");
         document = document.replace("var STATE = \"\";", "var STATE = \"" + this.state + "\";");
         document = document.replace("var BUILD = [];", "var BUILD = " + JSON.stringify(this.messages) + ";");
+        document = document.replace("var COMMAND = \"\";", "var COMMAND = \"\";");
         return document;
+    }
+
+    /**
+     * Tries to parse the specified input
+     * @param input The input to parse
+     */
+    public doTryParse(input: string): void {
+        if (this.state != "ready")
+            return;
+        
     }
 }
 
@@ -152,5 +170,17 @@ class MyDocProvider implements VSCode.TextDocumentContentProvider {
         if (observer == null)
             return "<html lang='en'><body>Unknown compilation operation!</body></html>"
         return observer.getDocument();
+    }
+
+    /**
+     * Tries to parse the input for a generated parser
+     * @param uri   The URI of the corresponding virtual document
+     * @param input The input to try to parse
+     */
+    public doTryParse(uri: VSCode.Uri, input: string) {
+        let observer = this.tasks[uri.toString()];
+        if (observer == null)
+            return;
+        observer.doTryParse(input);
     }
 }

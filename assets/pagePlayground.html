@@ -80,7 +80,7 @@
             </div>
             <div class="row">
                 <div class="col">
-                    <a class="btn btn-primary" href="#" role="button">Try this!</a>
+                    <a class="btn btn-primary" role="button" id="buttonTry" onclick="onClickTry()">Try this!</a>
                 </div>
             </div>
             <div class="row">
@@ -100,6 +100,7 @@
         var ROOT = "";
         var STATE = "";
         var BUILD = [];
+        var DOCID = "";
         var INPUT = "";
         var RESULT = {};
 
@@ -143,7 +144,7 @@
                     entry.classList.add("alert-info");
                 else if (BUILD[i].startsWith("[WARNING]"))
                     entry.classList.add("alert-warning");
-                 else if (BUILD[i].startsWith("[ERROR]"))
+                else if (BUILD[i].startsWith("[ERROR]"))
                     entry.classList.add("alert-danger");
                 log.appendChild(entry);
             }
@@ -182,7 +183,7 @@
             }
             var input = document.createElement("input");
             input.type = "checkbox";
-            input.id = Math.random().toString() + "-" + Math.random().toString()+ "-" + Math.random().toString()+ "-" + Math.random().toString();
+            input.id = Math.random().toString() + "-" + Math.random().toString() + "-" + Math.random().toString() + "-" + Math.random().toString();
             li.appendChild(input);
             var i1 = document.createElement("i");
             i1.classList.add("fa");
@@ -202,6 +203,14 @@
                 renderAST(ul, node.children[i]);
             }
             domTarget.appendChild(li);
+        }
+
+        function onClickTry() {
+            var args = [DOCID, document.getElementById("input").value];
+            window.parent.postMessage({
+                command: "did-click-link",
+                data: `command:hime.doTryParse?${encodeURIComponent(JSON.stringify(args))}`
+            }, "file://");
         }
 
         renderStatus();
