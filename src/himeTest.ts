@@ -24,6 +24,15 @@ import * as FS from "fs";
 import * as Hime from "./hime";
 
 /**
+ * The base URI for playground virtual documents
+ */
+let PLAYGROUND_URI = "hime-test://authority/playground/";
+/**
+ * Namespace for generated code
+ */
+let NMSPCE = "Hime.Generated";
+
+/**
  * Register commands for this extension
  * @param context  The extension's content
  */
@@ -31,43 +40,55 @@ export function registerCommand(context: VSCode.ExtensionContext) {
     let assetsPath = Path.resolve(context.extensionPath, "assets");
 
     // register UI for the compilation operation
-    let virtualDocProvider = new MyDocProvider();
-    let registration = VSCode.workspace.registerTextDocumentContentProvider('hime-test', virtualDocProvider);
+    let provider = new PlaygroundProvider();
+    let registration = VSCode.workspace.registerTextDocumentContentProvider('hime-test', provider);
     context.subscriptions.push(registration);
 
     // register command
     let disposable = VSCode.commands.registerCommand("hime.test", (fileUri: string, grammar: string) => {
-        let virtualDocUri = VSCode.Uri.parse("hime-test://authority/grammar-test/" + Math.random().toString());
+        let playgroundId = Hime.randomString();
+        let virtualDocUri = VSCode.Uri.parse(PLAYGROUND_URI + playgroundId);
+        let targetPath = Path.resolve(OS.tmpdir(), playgroundId);
+        FS.mkdirSync(targetPath);
+        let playground = new Playground(context, provider, playgroundId, grammar);
         return VSCode.commands.executeCommand("vscode.previewHtml", virtualDocUri, VSCode.ViewColumn.Two, grammar + " Test").then((success) => {
-            Hime.compileGrammar(context, fileUri, grammar, new MyObserver(assetsPath, virtualDocUri, virtualDocProvider), ["-o:assembly"]);
+            Hime.compileGrammar(context, fileUri, grammar, playground, ["-o:assembly", "-a:public", "-n", NMSPCE, "-p", targetPath]);
         }, (reason) => {
             VSCode.window.showErrorMessage(reason);
         });
     });
     context.subscriptions.push(disposable);
 
-    let disposable2 = VSCode.commands.registerCommand("hime.doTryParse", (virtualDocUri: string, input: string) => {
-        virtualDocProvider.doTryParse(VSCode.Uri.parse(virtualDocUri), input);
+    let disposable2 = VSCode.commands.registerCommand("hime.doTryParse", (playgroundId: string, input: string) => {
+        provider.doTryParse(playgroundId, input);
     });
     context.subscriptions.push(disposable2);
 }
 
 /**
- * An observer of a compilation operation
+ * Represents a playground for testing a grammar
  */
-class MyObserver implements Hime.ProcessObserver {
+class Playground implements Hime.ProcessObserver {
     /**
-     * Path to the assets
+     * The extension's content
      */
-    private assetsPath: string;
+    private context: VSCode.ExtensionContext;
     /**
-     * The URI for the corresponding virtual document
+     * The parent document provider
      */
-    public virtualDocUri: VSCode.Uri;
+    private parent: PlaygroundProvider;
     /**
-     * The document provider to notify for updates
+     * The unique identifier of this playground
      */
-    private documentProvider: MyDocProvider;
+    public identifier: string;
+    /**
+     * The name of the grammar to test
+     */
+    private grammar: string;
+    /**
+     * The current state of this operation
+     */
+    private state: string;
     /**
      * The compilation messages
      */
@@ -81,36 +102,66 @@ class MyObserver implements Hime.ProcessObserver {
      */
     private isOnError: boolean;
     /**
-     * The current state of this operation
+     * The input that is being parsed
      */
-    private state: string;
+    private input: string;
+    /**
+     * The parse result for the input
+     */
+    private result: Hime.ParseResult;
+
+    /**
+     * Gets the URI for the corresponding virtual document
+     */
+    public get virtualDocUri(): VSCode.Uri {
+        return VSCode.Uri.parse(PLAYGROUND_URI + this.identifier);
+    }
+
+    /**
+     * Gets the path to the extension's assets
+     */
+    private get assetsPath(): string {
+        return Path.resolve(this.context.extensionPath, "assets");
+    }
+
+    /**
+     * Gets the path to the target binaries for this folder
+     */
+    private get targetPath(): string {
+        return Path.resolve(OS.tmpdir(), this.identifier);
+    }
+
 
     /**
      * Initializes this observer
-     * @param assetsPath       Path to the assets
-     * @param virtualDocUri    The URI for the corresponding virtual document
-     * @param documentProvider The document provider to notify for updates
+     * @param context     The extension's content
+     * @param parent      The parent document provider
+     * @param identifier  The unique identifier of this playground
+     * @param grammar     The name of the grammar to test
      */
-    constructor(assetsPath: string, virtualDocUri: VSCode.Uri, documentProvider: MyDocProvider) {
-        this.assetsPath = assetsPath;
-        this.virtualDocUri = virtualDocUri;
-        this.documentProvider = documentProvider;
+    constructor(context: VSCode.ExtensionContext, parent: PlaygroundProvider, identifier: string, grammar: string) {
+        this.context = context;
+        this.parent = parent;
+        this.identifier = identifier;
+        this.grammar = grammar;
+        this.state = "building";
         this.messages = [];
         this.isFinished = false;
         this.isOnError = false;
-        this.state = "building";
+        this.input = "";
+        this.result = null;
     }
 
     public onLog(message: string): void {
         this.messages = this.messages.concat(message);
         this.isOnError = this.isOnError || message.indexOf("[ERROR]") == 0;
-        this.documentProvider.update(this);
+        this.parent.update(this);
     }
 
     public onFinished(): void {
         this.isFinished = true;
         this.state = this.isOnError ? "builderror" : "ready";
-        this.documentProvider.update(this);
+        this.parent.update(this);
     }
 
     /**
@@ -120,10 +171,12 @@ class MyObserver implements Hime.ProcessObserver {
     public getDocument(): string {
         let document = FS.readFileSync(this.assetsPath + "/pagePlayground.html", "utf8");
         document = document.replace("var ROOT = \"\";", "var ROOT = \"file://" + this.assetsPath + "/\";");
-        document = document.replace("var DOCID = \"\";", "var DOCID = \"" + this.virtualDocUri.toString() + "\";");
+        document = document.replace("var DOCID = \"\";", "var DOCID = \"" + this.identifier + "\";");
         document = document.replace("var STATE = \"\";", "var STATE = \"" + this.state + "\";");
         document = document.replace("var BUILD = [];", "var BUILD = " + JSON.stringify(this.messages) + ";");
-        document = document.replace("var COMMAND = \"\";", "var COMMAND = \"\";");
+        document = document.replace("var INPUT = \"\";", "var INPUT = \"" + this.input + "\";");
+        if (this.result != null)
+            document = document.replace("var RESULT = \"\";", "var RESULT = " + JSON.stringify(this.result) + ";");
         return document;
     }
 
@@ -134,53 +187,76 @@ class MyObserver implements Hime.ProcessObserver {
     public doTryParse(input: string): void {
         if (this.state != "ready")
             return;
-        
+        this.state = "parsing";
+        this.input = input;
+        this.parent.update(this);
+        Hime.parseInput(this.context, Path.resolve(this.targetPath, this.grammar + ".dll"), NMSPCE + "." + this.grammar + "Parser", input).then((result) => {
+            this.state = "ready";
+            this.result = result;
+            this.parent.update(this);
+        }, (reason) => {
+            VSCode.window.showErrorMessage(reason);
+        });
     }
 }
 
+
+/**
+ * Dictionary of playgrounds
+ */
 interface IHash {
-    [details: string]: MyObserver;
+    [details: string]: Playground;
 }
 
-class MyDocProvider implements VSCode.TextDocumentContentProvider {
+/**
+ * Implementation of a provider of virtual documents for playgrounds
+ */
+class PlaygroundProvider implements VSCode.TextDocumentContentProvider {
     /**
      * The event emitter for updates
      */
     private _onDidChange = new VSCode.EventEmitter<VSCode.Uri>();
     /**
-     * The compilation tasks going on
+     * The known playgrounds by URI of their virtual documents
      */
-    private tasks: IHash = {};
+    private playgrounds: IHash = {};
 
     get onDidChange(): VSCode.Event<VSCode.Uri> {
         return this._onDidChange.event;
     }
 
     /**
-     * When a compilation operation has been updated
-     * @param observer The updated observer 
+     * Registers a new playground
+     * @param playground The playground to register
      */
-    public update(observer: MyObserver) {
-        this.tasks[observer.virtualDocUri.toString()] = observer;
-        this._onDidChange.fire(observer.virtualDocUri);
+    public register(playground: Playground) {
+        this.playgrounds[PLAYGROUND_URI + playground.identifier] = playground;
+    }
+
+    /**
+     * When the status of a playground has been updated
+     * @param playground The updated playground
+     */
+    public update(playground: Playground) {
+        this._onDidChange.fire(playground.virtualDocUri);
     }
 
     public provideTextDocumentContent(uri: VSCode.Uri): string {
-        let observer = this.tasks[uri.toString()];
+        let observer = this.playgrounds[uri.toString()];
         if (observer == null)
-            return "<html lang='en'><body>Unknown compilation operation!</body></html>"
+            return "<html lang='en'><body>Unknown playground!</body></html>"
         return observer.getDocument();
     }
 
     /**
-     * Tries to parse the input for a generated parser
-     * @param uri   The URI of the corresponding virtual document
+     * Tries to parse the input for a generated parser within a  playground
+     * @param playgroundId   The identifier of the requesting playground
      * @param input The input to try to parse
      */
-    public doTryParse(uri: VSCode.Uri, input: string) {
-        let observer = this.tasks[uri.toString()];
-        if (observer == null)
+    public doTryParse(playgroundId: string, input: string) {
+        let playground = this.playgrounds[PLAYGROUND_URI + playgroundId];
+        if (playground == null)
             return;
-        observer.doTryParse(input);
+        playground.doTryParse(input);
     }
 }

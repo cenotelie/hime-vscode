@@ -218,3 +218,18 @@ export function parseInput(context: VSCode.ExtensionContext, assemblyFile: strin
         });
     });
 }
+
+let CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+/**
+ * Creates a random string that can be used as an identifier
+ * @returns The generated string
+ */
+export function randomString(): string {
+    var result = "";
+    for (var i = 0; i != 20; i++) {
+        let index = Math.floor((Math.random() * CHARACTERS.length));
+        result += CHARACTERS[index].toString();
+    }
+    return result;
+}
