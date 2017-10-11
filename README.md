@@ -24,8 +24,12 @@ This extension looks for a local installation a Java using (in this order):
 * Syntax highlighting for the grammars.
 * Detection of grammar symbols (terminals, variables, etc.) and navigation.
 * Syntactic verification and other diagnostics for common issues.
+* Grammar compilation from within VS Code.
+* Test grammar with a the playground within VS Code.
 
 ![Hime language in action](https://cenotelie.fr/hime/captures/demo1.gif)
+
+![Grammar playground](https://cenotelie.fr/hime/captures/demo2.gif)
 
 ## Settings
 
