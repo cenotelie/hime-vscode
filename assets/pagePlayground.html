@@ -30,12 +30,6 @@
             margin-left: 20px;
         }
 
-        .card {
-            border-radius: 0.25rem;
-            border: 0.1rem solid lightgray;
-            min-height: 1rem;
-        }
-
         .card-info {
             color: rgb(71, 71, 194);
         }
@@ -50,6 +44,8 @@
 
         textarea {
             width: 100%;
+            background-color: transparent;
+            color: gray;
         }
 
         input {
@@ -64,18 +60,6 @@
             display: block;
         }
 
-        input~.fa-angle-double-down {
-            display: none;
-        }
-
-        input:checked~.fa-angle-double-right {
-            display: none;
-        }
-
-        input:checked~.fa-angle-double-down {
-            display: inline;
-        }
-
         li {
             display: block;
             padding: 0.2em;
@@ -87,8 +71,13 @@
             border-radius: 3px;
         }
 
-        label:hover {
-            background-color: lightblue;
+        input~label:hover {
+            color: #4ca832;
+            cursor: pointer;
+        }
+
+        input:checked~label:hover {
+            color: orange;
             cursor: pointer;
         }
     </style>
@@ -98,10 +87,10 @@
     <div class="body">
         <div class="row">
             <button class="button" type="button" data-toggle="collapse" onclick="onClickBuildLog()">Show/Hide build log</button>
-            <span id="status" class="status">Status</span>
+            <span id="status" class="status"></span>
         </div>
         <div class="row">
-            <div class="card" id="collapseBuildLog" isexpanded="false" style="display: none;">
+            <div id="buildLog" isexpanded="false" style="display: none;">
             </div>
         </div>
         <div class="row">
@@ -113,7 +102,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="card card-body" id="result"></div>
+            <div id="result"></div>
         </div>
     </div>
     <script>
@@ -161,7 +150,6 @@
             var log = document.getElementById("buildLog");
             for (var i = 0; i != BUILD.length; i++) {
                 var entry = document.createElement("div");
-                entry.classList.add("card");
                 entry.appendChild(document.createTextNode(BUILD[i]));
                 if (BUILD[i].startsWith("[INFO]"))
                     entry.classList.add("card-info");
@@ -214,14 +202,6 @@
             input.type = "checkbox";
             input.id = Math.random().toString() + "-" + Math.random().toString() + "-" + Math.random().toString() + "-" + Math.random().toString();
             li.appendChild(input);
-            var i1 = document.createElement("i");
-            i1.classList.add("fa");
-            i1.classList.add("fa-angle-double-right");
-            li.appendChild(i1);
-            var i2 = document.createElement("i");
-            i2.classList.add("fa");
-            i2.classList.add("fa-angle-double-down");
-            li.appendChild(i2);
             var label = document.createElement("label");
             label.htmlFor = input.id;
             label.appendChild(document.createTextNode(renderASTNodeString(node)));
@@ -235,7 +215,7 @@
         }
 
         function onClickBuildLog() {
-            var log = document.getElementById("collapseBuildLog");
+            var log = document.getElementById("buildLog");
             if (log.getAttribute("isexpanded") == "false") {
                 log.style.display = "block";
                 log.setAttribute("isexpanded", "true");
