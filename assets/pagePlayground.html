@@ -107,29 +107,33 @@
         function renderStatus() {
             var status = document.getElementById("status");
             if (STATE == "building") {
+                var image = document.createElement("img");
+                image.style.width = "25px";
+                image.src = ROOT + "spinner.gif";
+                image.style.marginRight = "20px";
+                status.appendChild(image);
                 status.appendChild(document.createTextNode("Building ..."));
-                var image = document.createElement("img");
-                image.width = "25";
-                image.src = ROOT + "spinner.gif";
-                status.appendChild(image);
             } else if (STATE == "ready") {
-                status.appendChild(document.createTextNode("Ready!"));
                 var image = document.createElement("img");
-                image.width = "25";
+                image.style.width = "25px";
                 image.src = ROOT + "result-ok.svg";
+                image.style.marginRight = "20px";
                 status.appendChild(image);
+                status.appendChild(document.createTextNode("Ready!"));
             } else if (STATE == "builderror") {
-                status.appendChild(document.createTextNode("Build failed!"));
                 var image = document.createElement("img");
-                image.width = "25";
+                image.style.width = "25px";
                 image.src = ROOT + "result-failed.svg";
+                image.style.marginRight = "20px";
                 status.appendChild(image);
+                status.appendChild(document.createTextNode("Build failed!"));
             } else if (STATE == "parsing") {
-                status.appendChild(document.createTextNode("Parsing input ..."));
                 var image = document.createElement("img");
-                image.width = "25";
+                image.style.width = "25px";
                 image.src = ROOT + "spinner.gif";
+                image.style.marginRight = "20px";
                 status.appendChild(image);
+                status.appendChild(document.createTextNode("Parsing input ..."));
             }
         }
 
@@ -154,7 +158,7 @@
             if (!RESULT.hasOwnProperty("errors"))
                 return;
             if (RESULT.errors.length > 0) {
-
+                renderParseErrors();
             } else {
                 var ul = document.createElement("ul");
                 renderAST(ul, RESULT.root);
@@ -163,7 +167,13 @@
         }
 
         function renderParseErrors() {
-
+            var target = document.getElementById("result");
+            for (var i = 0; i != RESULT.errors.length; i++) {
+                var content = document.createElement("div");
+                var message = "ERROR (" + RESULT.errors[i].position.line.toString() + ", " + RESULT.errors[i].position.column.toString() + ") " + RESULT.errors[i].message;
+                content.appendChild(document.createTextNode(message));
+                target.appendChild(content);
+            }
         }
 
         function renderASTNodeString(node) {

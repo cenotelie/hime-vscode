@@ -51,6 +51,7 @@ export function registerCommand(context: VSCode.ExtensionContext) {
         let targetPath = Path.resolve(OS.tmpdir(), playgroundId);
         FS.mkdirSync(targetPath);
         let playground = new Playground(context, provider, playgroundId, grammar);
+        provider.register(playground);
         return VSCode.commands.executeCommand("vscode.previewHtml", virtualDocUri, VSCode.ViewColumn.Two, grammar + " Test").then((success) => {
             Hime.compileGrammar(context, fileUri, grammar, playground, ["-o:assembly", "-a:public", "-n", NMSPCE, "-p", targetPath]);
         }, (reason) => {
@@ -175,8 +176,10 @@ class Playground implements Hime.ProcessObserver {
         document = document.replace("var STATE = \"\";", "var STATE = \"" + this.state + "\";");
         document = document.replace("var BUILD = [];", "var BUILD = " + JSON.stringify(this.messages) + ";");
         document = document.replace("var INPUT = \"\";", "var INPUT = \"" + this.input + "\";");
-        if (this.result != null)
-            document = document.replace("var RESULT = \"\";", "var RESULT = " + JSON.stringify(this.result) + ";");
+        if (this.result != null) {
+            let resultString = JSON.stringify(this.result);
+            document = document.replace("var RESULT = {};", "var RESULT = " + resultString + ";");
+        }
         return document;
     }
 
