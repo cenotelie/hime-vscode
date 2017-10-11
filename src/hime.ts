@@ -233,3 +233,36 @@ export function randomString(): string {
     }
     return result;
 }
+
+
+/**
+ * Escapes the input string for serialization in JSON
+ * @param value The input string to escape
+ */
+export function escapeString(value: string): string {
+    var builder = [];
+    for (var i = 0; i != value.length; i++) {
+        var c = value[i];
+        if (c == '"')
+            builder.push("\\\"");
+        else if (c == '\\')
+            builder.push("\\\\");
+        else if (c == '\u0000')
+            builder.push("\\0");
+        else if (c == '\u0007')
+            builder.push("\\a");
+        else if (c == '\t')
+            builder.push("\\t");
+        else if (c == '\r')
+            builder.push("\\r");
+        else if (c == '\n')
+            builder.push("\\n");
+        else if (c == '\b')
+            builder.push("\\b");
+        else if (c == '\f')
+            builder.push("\\f");
+        else
+            builder.push(c);
+    }
+    return builder.join("");
+}

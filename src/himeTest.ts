@@ -175,7 +175,7 @@ class Playground implements Hime.ProcessObserver {
         document = document.replace("var DOCID = \"\";", "var DOCID = \"" + this.identifier + "\";");
         document = document.replace("var STATE = \"\";", "var STATE = \"" + this.state + "\";");
         document = document.replace("var BUILD = [];", "var BUILD = " + JSON.stringify(this.messages) + ";");
-        document = document.replace("var INPUT = \"\";", "var INPUT = \"" + this.input + "\";");
+        document = document.replace("var INPUT = \"\";", "var INPUT = \"" + Hime.escapeString(this.input) + "\";");
         if (this.result != null) {
             let resultString = JSON.stringify(this.result);
             document = document.replace("var RESULT = {};", "var RESULT = " + resultString + ";");
