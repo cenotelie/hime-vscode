@@ -30,15 +30,15 @@
             margin-left: 20px;
         }
 
-        .card-info {
+        .message-info {
             color: rgb(71, 71, 194);
         }
 
-        .card-warning {
+        .message-warning {
             color: orange;
         }
 
-        .card-error {
+        .message-error {
             color: red;
         }
 
@@ -147,11 +147,11 @@
                 var entry = document.createElement("div");
                 entry.appendChild(document.createTextNode(DATA.messages[i]));
                 if (DATA.messages[i].startsWith("[INFO]"))
-                    entry.classList.add("card-info");
+                    entry.classList.add("message-info");
                 else if (DATA.messages[i].startsWith("[WARNING]"))
-                    entry.classList.add("card-warning");
+                    entry.classList.add("message-warning");
                 else if (DATA.messages[i].startsWith("[ERROR]"))
-                    entry.classList.add("card-danger");
+                    entry.classList.add("message-error");
                 log.appendChild(entry);
             }
         }
