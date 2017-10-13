@@ -1,5 +1,11 @@
 # Updates
 
+## 0.2.1
+
+* Fixes:
+    * Fixed [Issue #1](https://bitbucket.org/cenotelie/hime-vscode/issues/1/) : Parsing sometimes fails in the playground
+    * Fixed [Issue #2](https://bitbucket.org/cenotelie/hime-vscode/issues/2/) : Build error are shown in white in the grammar playground
+
 ## 0.2.0
 
 * Features:
