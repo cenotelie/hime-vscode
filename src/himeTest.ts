@@ -171,16 +171,15 @@ class Playground implements Hime.ProcessObserver {
      */
     public getDocument(): string {
         let document = FS.readFileSync(this.assetsPath + "/pagePlayground.html", "utf8");
-        document = document.replace("var ROOT = \"\";", "var ROOT = \"file://" + this.assetsPath + "/\";");
-        document = document.replace("var DOCID = \"\";", "var DOCID = \"" + this.identifier + "\";");
-        document = document.replace("var STATE = \"\";", "var STATE = \"" + this.state + "\";");
-        document = document.replace("var BUILD = [];", "var BUILD = " + JSON.stringify(this.messages) + ";");
-        document = document.replace("var INPUT = \"\";", "var INPUT = \"" + Hime.escapeString(this.input) + "\";");
-        if (this.result != null) {
-            let resultString = JSON.stringify(this.result);
-            document = document.replace("var RESULT = {};", "var RESULT = " + resultString + ";");
-        }
-        return document;
+        let data = {
+            assetsPath: "file://" + this.assetsPath + "/",
+            playgroundId: this.identifier,
+            state: this.state,
+            messages: this.messages,
+            input: this.input,
+            result: this.result
+        };
+        return document.replace("var DATA = null;", "var DATA = " + JSON.stringify(data) + ";");
     }
 
     /**

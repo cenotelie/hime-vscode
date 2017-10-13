@@ -208,14 +208,18 @@ export function parseInput(context: VSCode.ExtensionContext, assemblyFile: strin
             reject("Hime: Failed to launch parseit");
             return;
         }
+        let content = [];
+        child.stdout.on('data', function (data) {
+            const chunkAsString = typeof data === 'string' ? data : data.toString();
+            content.push(chunkAsString);
+        });
+        child.on('close', function (code) {
+            let result = JSON.parse(content.join(""));
+            resolve(result);
+        });
         child.stdin.setDefaultEncoding("utf-8");
         child.stdin.write(input + "\n");
         child.stdin.end();
-        child.stdout.on('data', function (data) {
-            const chunkAsString = typeof data === 'string' ? data : data.toString();
-            let result = JSON.parse(chunkAsString);
-            resolve(result);
-        });
     });
 }
 

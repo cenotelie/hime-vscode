@@ -106,40 +106,35 @@
         </div>
     </div>
     <script>
-        var ROOT = "";
-        var DOCID = "";
-        var STATE = "";
-        var BUILD = [];
-        var INPUT = "";
-        var RESULT = {};
+        var DATA = null;
 
         function renderStatus() {
             var status = document.getElementById("status");
-            if (STATE == "building") {
+            if (DATA.state == "building") {
                 var image = document.createElement("img");
                 image.style.width = "25px";
-                image.src = ROOT + "spinner.gif";
+                image.src = DATA.assetsPath + "spinner.gif";
                 image.style.marginRight = "20px";
                 status.appendChild(image);
                 status.appendChild(document.createTextNode("Building ..."));
-            } else if (STATE == "ready") {
+            } else if (DATA.state == "ready") {
                 var image = document.createElement("img");
                 image.style.width = "25px";
-                image.src = ROOT + "result-ok.svg";
+                image.src = DATA.assetsPath + "result-ok.svg";
                 image.style.marginRight = "20px";
                 status.appendChild(image);
                 status.appendChild(document.createTextNode("Ready!"));
-            } else if (STATE == "builderror") {
+            } else if (DATA.state == "builderror") {
                 var image = document.createElement("img");
                 image.style.width = "25px";
-                image.src = ROOT + "result-failed.svg";
+                image.src = DATA.assetsPath + "result-failed.svg";
                 image.style.marginRight = "20px";
                 status.appendChild(image);
                 status.appendChild(document.createTextNode("Build failed!"));
-            } else if (STATE == "parsing") {
+            } else if (DATA.state == "parsing") {
                 var image = document.createElement("img");
                 image.style.width = "25px";
-                image.src = ROOT + "spinner.gif";
+                image.src = DATA.assetsPath + "spinner.gif";
                 image.style.marginRight = "20px";
                 status.appendChild(image);
                 status.appendChild(document.createTextNode("Parsing input ..."));
@@ -148,36 +143,36 @@
 
         function renderBuild() {
             var log = document.getElementById("buildLog");
-            for (var i = 0; i != BUILD.length; i++) {
+            for (var i = 0; i != DATA.messages.length; i++) {
                 var entry = document.createElement("div");
-                entry.appendChild(document.createTextNode(BUILD[i]));
-                if (BUILD[i].startsWith("[INFO]"))
+                entry.appendChild(document.createTextNode(DATA.messages[i]));
+                if (DATA.messages[i].startsWith("[INFO]"))
                     entry.classList.add("card-info");
-                else if (BUILD[i].startsWith("[WARNING]"))
+                else if (DATA.messages[i].startsWith("[WARNING]"))
                     entry.classList.add("card-warning");
-                else if (BUILD[i].startsWith("[ERROR]"))
+                else if (DATA.messages[i].startsWith("[ERROR]"))
                     entry.classList.add("card-danger");
                 log.appendChild(entry);
             }
         }
 
         function renderResult() {
-            if (!RESULT.hasOwnProperty("errors"))
+            if (!DATA.result.hasOwnProperty("errors"))
                 return;
-            if (RESULT.errors.length > 0) {
+            if (DATA.result.errors.length > 0) {
                 renderParseErrors();
             } else {
                 var ul = document.createElement("ul");
-                renderAST(ul, RESULT.root);
+                renderAST(ul, DATA.result.root);
                 document.getElementById("result").appendChild(ul);
             }
         }
 
         function renderParseErrors() {
             var target = document.getElementById("result");
-            for (var i = 0; i != RESULT.errors.length; i++) {
+            for (var i = 0; i != DATA.result.errors.length; i++) {
                 var content = document.createElement("div");
-                var message = "ERROR (" + RESULT.errors[i].position.line.toString() + ", " + RESULT.errors[i].position.column.toString() + ") " + RESULT.errors[i].message;
+                var message = "ERROR (" + DATA.result.errors[i].position.line.toString() + ", " + DATA.result.errors[i].position.column.toString() + ") " + DATA.result.errors[i].message;
                 content.appendChild(document.createTextNode(message));
                 target.appendChild(content);
             }
@@ -226,7 +221,7 @@
         }
 
         function onClickTry() {
-            var args = [DOCID, document.getElementById("input").value];
+            var args = [DATA.playgroundId, document.getElementById("input").value];
             window.parent.postMessage({
                 command: "did-click-link",
                 data: `command:hime.doTryParse?${encodeURIComponent(JSON.stringify(args))}`
@@ -236,7 +231,7 @@
         renderStatus();
         renderBuild();
         renderResult();
-        document.getElementById("input").textContent = INPUT;
+        document.getElementById("input").textContent = DATA.input;
     </script>
 </body>
 
