@@ -21,14 +21,14 @@ if [ -r "$SERVER_FILE" ]; then
     cp "$SERVER_FILE" "$ROOT/target/bin/server.jar"
 else
     echo "Cannot find local build of the server, will try from maven.org"
-    curl -o "$ROOT/target/bin/server.jar" "https://repo1.maven.org/maven2/fr/cenotelie/hime/hime-language-server/$SERVER_VERSION/hime-language-server-$SERVER_VERSION-jar-with-dependencies.jar"
+    curl -L -o "$ROOT/target/bin/server.jar" "https://repo1.maven.org/maven2/fr/cenotelie/hime/hime-language-server/$SERVER_VERSION/hime-language-server-$SERVER_VERSION-jar-with-dependencies.jar"
     if [ ! -f "$ROOT/target/bin/server.jar" ]; then
         echo "Failed to download from maven.org"
         exit 1
     fi
 fi
 
-wget -q -O "$ROOT/target/hime-dist.zip" "https://bitbucket.org/cenotelie/hime/downloads/hime-v$DIST_VERSION.zip"
+curl -L -o "$ROOT/target/hime-dist.zip" "https://bitbucket.org/cenotelie/hime/downloads/hime-v$DIST_VERSION.zip"
 unzip "$ROOT/target/hime-dist.zip" -d "$ROOT/target"
 mv "$ROOT/target/hime-$DIST_VERSION/net461"    "$ROOT/target/bin/net461"
 mv "$ROOT/target/hime-$DIST_VERSION/netcore20" "$ROOT/target/bin/netcore20"
