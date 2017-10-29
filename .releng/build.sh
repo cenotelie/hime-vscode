@@ -34,6 +34,8 @@ mv "$ROOT/target/hime-$DIST_VERSION/net461"    "$ROOT/target/bin/net461"
 mv "$ROOT/target/hime-$DIST_VERSION/netcore20" "$ROOT/target/bin/netcore20"
 mv "$ROOT/target/hime-$DIST_VERSION/himecc"    "$ROOT/target/bin/himecc"
 mv "$ROOT/target/hime-$DIST_VERSION/parseit"   "$ROOT/target/bin/parseit"
+chmod +x "$ROOT/target/bin/himecc"
+chmod +x "$ROOT/target/bin/parseit"
 rm "$ROOT/target/hime-dist.zip"
 rm -rf "$ROOT/target/hime-$DIST_VERSION"
 rm -f "$ROOT/target/bin/net461/"*.pdb
