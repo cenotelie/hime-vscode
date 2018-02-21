@@ -1,5 +1,10 @@
 # Updates
 
+## 0.2.2
+
+* Features:
+    * Support for Hime grammar language 3.3.1
+
 ## 0.2.1
 
 * Fixes:
