@@ -1,5 +1,10 @@
 # Updates
 
+## 0.2.3
+
+* Fixes:
+    * Fixed issue with extension crashing on a gramme with only one option
+
 ## 0.2.2
 
 * Features:
