@@ -7,9 +7,9 @@ ROOT="$(dirname "$RELENG")"
 VERSION=$(grep "version" "$ROOT/package.json" | grep -o -E "([[:digit:]]+\\.[[:digit:]]+\\.[[:digit:]])+")
 HASH=$(hg -R "$ROOT" --debug id -i)
 
-SERVER_VERSION="1.0.2"
+SERVER_VERSION="1.0.3"
 SERVER_FILE="$HOME/.m2/repository/fr/cenotelie/hime/hime-language-server/$SERVER_VERSION/hime-language-server-$SERVER_VERSION-jar-with-dependencies.jar"
-DIST_VERSION="3.3.1"
+DIST_VERSION="3.3.2"
 
 # Prepare outputs
 rm -f "$OOT/hime-language-$VERSION.vsix"
