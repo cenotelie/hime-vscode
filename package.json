@@ -8,20 +8,20 @@
     "author": "Assocation Cénotélie",
     "publisher": "cenotelie",
     "repository": {
-        "type": "mercurial",
-        "url": "https://bitbucket.org/cenotelie/hime-vscode"
+        "type": "git",
+        "url": "https://github.com/cenotelie/hime-vscode"
     },
     "license": "LGPL-3.0+",
-    "homepage": "https://bitbucket.org/cenotelie/hime-vscode",
+    "homepage": "https://github.com/cenotelie/hime-vscode",
     "bugs": {
-        "url": "https://bitbucket.org/cenotelie/hime-vscode/issues",
+        "url": "https://github.com/cenotelie/hime-vscode/issues",
         "email": "contact@cenotelie.fr"
     },
     "engines": {
-        "vscode": "^1.14.0"
+        "vscode": "^1.43.0"
     },
     "categories": [
-        "Languages"
+        "Programming Languages"
     ],
     "keywords": [
         "hime"
@@ -31,28 +31,12 @@
         "onCommand:hime.compile",
         "onCommand:hime.test"
     ],
-    "main": "./target/src/Main",
+    "main": "./target/src/index",
     "files": [],
     "contributes": {
         "configuration": {
             "title": "Hime Language Support",
-            "properties": {
-                "hime.java": {
-                    "type": "string",
-                    "description": "Path to the home of a local Java installation"
-                },
-                "hime.lsp.server": {
-                    "type": "string",
-                    "description": "The specification of the language server to use, either 'integrated', or 'remote'",
-                    "default": "integrated",
-                    "pattern": "^(integrated|remote)$"
-                },
-                "hime.lsp.server.port": {
-                    "type": "integer",
-                    "description": "The port to connect to for a remote language server",
-                    "default": 8000
-                }
-            }
+            "properties": {}
         },
         "languages": [
             {
@@ -101,17 +85,20 @@
         ]
     },
     "scripts": {
-        "vscode:prepublish": "tsc -p ./",
-        "compile": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install"
+        "format": "prettier --write src",
+        "lint": "tslint -p . -c tslint.json 'src/**/*.ts*'",
+        "build": "tsc -p ./",
+        "start": "tsc -watch -p ./"
     },
     "dependencies": {
         "vscode-languageclient": "3.3.0"
     },
     "devDependencies": {
-        "typescript": "2.4.2",
-        "vscode": "1.1.4",
         "@types/node": "^6.0.40",
-        "@types/es6-promise": "^0.0.32"
+        "@types/vscode": "^1.48.0",
+        "prettier": "^2.0.5",
+        "tslint": "^5.20.1",
+        "typescript": "^3.9.7",
+        "vscode-languageclient": "^6.1.3"
     }
 }

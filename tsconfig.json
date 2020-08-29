@@ -1,11 +1,13 @@
 {
-	"compilerOptions": {
-		"target": "es5",
-		"sourceMap": true,
-        "rootDir": ".",
-        "outDir": "target"
-	},
-	"exclude": [
-		"node_modules"
-	]
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2019",
+    "lib": ["ES2019"],
+    "outDir": "build",
+    "rootDir": "src",
+    "sourceMap": true,
+    "skipLibCheck": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
 }

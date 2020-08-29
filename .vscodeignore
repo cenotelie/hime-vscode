@@ -2,8 +2,8 @@
 .vscode/**
 
 # Mercurial
-.hgignore
-.hg/**
+.gitignore
+.git/**
 
 # Ignore the release engineering artifacts
 .releng/**
