@@ -15,15 +15,16 @@
  * If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
 
-import * as VSCode from "vscode";
-import * as HimeLsp from "./himeLsp";
-import * as HimeCompile from "./himeCompile";
-import * as HimeTest from "./himeTest";
+import * as vscode from "vscode";
+import * as lsp from "./lsp";
 
-export function activate(context: VSCode.ExtensionContext): void {
-  let client = HimeLsp.createLanguageClient(context);
-  HimeCompile.registerCommand(context, client.outputChannel);
-  HimeTest.registerCommand(context);
+// import * as HimeCompile from "./himeCompile";
+// import * as HimeTest from "./himeTest";
+
+export function activate(context: vscode.ExtensionContext): void {
+  let _client = lsp.createLanguageClient(context);
+  // registerCommand(context, client.outputChannel);
+  // HimeTest.registerCommand(context);
 }
 
 export function deactivate(): void {}

@@ -31,7 +31,7 @@
         "onCommand:hime.compile",
         "onCommand:hime.test"
     ],
-    "main": "./target/src/index",
+    "main": "./build/index",
     "files": [],
     "contributes": {
         "configuration": {
