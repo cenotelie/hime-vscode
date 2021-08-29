@@ -26,7 +26,7 @@ import {
   LanguageClient,
   LanguageClientOptions,
   StreamInfo
-} from "vscode-languageclient";
+} from "vscode-languageclient/node";
 
 /**
  * Creates a new language client for this extension
