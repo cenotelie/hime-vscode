@@ -55,5 +55,5 @@ vsce package
 popd
 
 # cleanup
-rm -rf "$ROOT/target"
+# rm -rf "$ROOT/target"
 git checkout -- package.json
