@@ -5,11 +5,11 @@ RELENG="$(dirname "$SCRIPT")"
 ROOT="$(dirname "$RELENG")"
 
 VERSION=$(grep "version" "$ROOT/package.json" | grep -o -E "([[:digit:]]+\\.[[:digit:]]+\\.[[:digit:]])+")
-HASH=$(hg -R "$ROOT" --debug id -i)
+HASH=$(git rev-parse HEAD)
 
 SERVER_VERSION="1.0.3"
 SERVER_FILE="$HOME/.m2/repository/fr/cenotelie/hime/hime-language-server/$SERVER_VERSION/hime-language-server-$SERVER_VERSION-jar-with-dependencies.jar"
-DIST_VERSION="3.3.2"
+DIST_VERSION="3.5.1"
 
 # Prepare outputs
 rm -f "$OOT/hime-language-$VERSION.vsix"
@@ -28,7 +28,7 @@ else
     fi
 fi
 
-curl -L -o "$ROOT/target/hime-dist.zip" "https://bitbucket.org/cenotelie/hime/downloads/hime-v$DIST_VERSION.zip"
+curl -L -o "$ROOT/target/hime-dist.zip" "https://cenotelie.fr/releases/hime-v$DIST_VERSION.zip"
 unzip "$ROOT/target/hime-dist.zip" -d "$ROOT/target"
 mv "$ROOT/target/hime-$DIST_VERSION/net461"    "$ROOT/target/bin/net461"
 mv "$ROOT/target/hime-$DIST_VERSION/netcore20" "$ROOT/target/bin/netcore20"
@@ -55,4 +55,4 @@ popd
 
 # cleanup
 rm -rf "$ROOT/target"
-hg -R "$ROOT" revert -C package.json
+git checkout -- package.json
