@@ -49,6 +49,7 @@ sed -i "s/\"commit\": \".*\"/\"commit\": \"$HASH\"/" "$ROOT/package.json"
 pushd "$ROOT"
 
 npm install
+npm run build
 vsce package
 
 popd
