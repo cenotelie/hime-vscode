@@ -221,11 +221,8 @@
         }
 
         function onClickTry() {
-            var args = [DATA.playgroundId, document.getElementById("input").value];
-            window.parent.postMessage({
-                command: "did-click-link",
-                data: `command:hime.doTryParse?${encodeURIComponent(JSON.stringify(args))}`
-            }, "file://");
+            const vscode = acquireVsCodeApi();
+            vscode.postMessage(document.getElementById("input").value);
         }
 
         renderStatus();

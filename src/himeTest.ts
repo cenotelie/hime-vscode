@@ -53,7 +53,7 @@ export function registerCommand(context: VSCode.ExtensionContext) {
       let virtualDocUri = VSCode.Uri.parse(PLAYGROUND_URI + playgroundId);
       let targetPath = Path.resolve(OS.tmpdir(), playgroundId);
       FS.mkdirSync(targetPath);
-      let playground = new Playground(context, provider, playgroundId, grammar);
+      let playground = new Playground(context, playgroundId, grammar);
       provider.register(playground);
       try {
         const webviewPanel = VSCode.window.createWebviewPanel(
@@ -74,20 +74,16 @@ export function registerCommand(context: VSCode.ExtensionContext) {
           targetPath
         ]);
         webviewPanel.webview.html = playground.getDocument();
+        webviewPanel.webview.onDidReceiveMessage((message) => {
+          playground.doTryParse(message);
+        });
+        playground.webviewPanel = webviewPanel;
       } catch (e) {
         VSCode.window.showErrorMessage("hime-test : " + virtualDocUri);
       }
     }
   );
   context.subscriptions.push(disposable);
-
-  let disposable2 = VSCode.commands.registerCommand(
-    "hime.doTryParse",
-    (playgroundId: string, input: string) => {
-      provider.doTryParse(playgroundId, input);
-    }
-  );
-  context.subscriptions.push(disposable2);
 }
 
 /**
@@ -99,9 +95,9 @@ class Playground implements Hime.ProcessObserver {
    */
   private context: VSCode.ExtensionContext;
   /**
-   * The parent document provider
+   * The web view panel for the playground
    */
-  private parent: PlaygroundProvider;
+  public webviewPanel: VSCode.WebviewPanel;
   /**
    * The unique identifier of this playground
    */
@@ -165,12 +161,10 @@ class Playground implements Hime.ProcessObserver {
    */
   constructor(
     context: VSCode.ExtensionContext,
-    parent: PlaygroundProvider,
     identifier: string,
     grammar: string
   ) {
     this.context = context;
-    this.parent = parent;
     this.identifier = identifier;
     this.grammar = grammar;
     this.state = "building";
@@ -181,16 +175,23 @@ class Playground implements Hime.ProcessObserver {
     this.result = null;
   }
 
+  /**
+   * Updates the content of the web vew
+   */
+  public updateWebView() {
+    this.webviewPanel.webview.html = this.getDocument();
+  }
+
   public onLog(message: string): void {
     this.messages = this.messages.concat(message);
     this.isOnError = this.isOnError || message.indexOf("[ERROR]") == 0;
-    this.parent.update(this);
+    this.updateWebView();
   }
 
   public onFinished(): void {
     this.isFinished = true;
     this.state = this.isOnError ? "builderror" : "ready";
-    this.parent.update(this);
+    this.updateWebView();
   }
 
   /**
@@ -203,7 +204,7 @@ class Playground implements Hime.ProcessObserver {
       "utf8"
     );
     let data = {
-      assetsPath: "vscode-resource://" + this.assetsPath + "/",
+      assetsPath: "vscode-resource:" + this.assetsPath + "/",
       playgroundId: this.identifier,
       state: this.state,
       messages: this.messages,
@@ -224,7 +225,7 @@ class Playground implements Hime.ProcessObserver {
     if (this.state != "ready") return;
     this.state = "parsing";
     this.input = input;
-    this.parent.update(this);
+    this.updateWebView();
     Hime.parseInput(
       this.context,
       Path.resolve(this.targetPath, this.grammar + ".dll"),
@@ -234,7 +235,7 @@ class Playground implements Hime.ProcessObserver {
       (result) => {
         this.state = "ready";
         this.result = result;
-        this.parent.update(this);
+        this.updateWebView();
       },
       (reason) => {
         VSCode.window.showErrorMessage(reason);
@@ -275,29 +276,10 @@ class PlaygroundProvider implements VSCode.TextDocumentContentProvider {
     this.playgrounds[PLAYGROUND_URI + playground.identifier] = playground;
   }
 
-  /**
-   * When the status of a playground has been updated
-   * @param playground The updated playground
-   */
-  public update(playground: Playground) {
-    this._onDidChange.fire(playground.virtualDocUri);
-  }
-
   public provideTextDocumentContent(uri: VSCode.Uri): string {
     let observer = this.playgrounds[uri.toString()];
     if (observer == null)
       return "<html lang='en'><body>Unknown playground!</body></html>";
     return observer.getDocument();
-  }
-
-  /**
-   * Tries to parse the input for a generated parser within a  playground
-   * @param playgroundId   The identifier of the requesting playground
-   * @param input The input to try to parse
-   */
-  public doTryParse(playgroundId: string, input: string) {
-    let playground = this.playgrounds[PLAYGROUND_URI + playgroundId];
-    if (playground == null) return;
-    playground.doTryParse(input);
   }
 }
