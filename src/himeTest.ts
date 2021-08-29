@@ -55,28 +55,28 @@ export function registerCommand(context: VSCode.ExtensionContext) {
       FS.mkdirSync(targetPath);
       let playground = new Playground(context, provider, playgroundId, grammar);
       provider.register(playground);
-      return VSCode.commands
-        .executeCommand(
-          "vscode.previewHtml",
-          virtualDocUri,
-          VSCode.ViewColumn.Two,
-          grammar + " Test"
-        )
-        .then(
-          (success) => {
-            Hime.compileGrammar(context, fileUri, grammar, playground, [
-              "-o:assembly",
-              "-a:public",
-              "-n",
-              NMSPCE,
-              "-p",
-              targetPath
-            ]);
-          },
-          (reason) => {
-            VSCode.window.showErrorMessage(reason);
+      try {
+        const webviewPanel = VSCode.window.createWebviewPanel(
+          "himeWebview", // Identifies the type of the webview. Used internally
+          grammar + " Test", // Title of the panel displayed to the user
+          VSCode.ViewColumn.Two, // Editor column to show the new webview panel in.
+          {
+            // Enable scripts in the webview
+            enableScripts: true //Set this to true if you want to enable Javascript.
           }
         );
+        Hime.compileGrammar(context, fileUri, grammar, playground, [
+          "-o:assembly",
+          "-a:public",
+          "-n",
+          NMSPCE,
+          "-p",
+          targetPath
+        ]);
+        webviewPanel.webview.html = playground.getDocument();
+      } catch (e) {
+        VSCode.window.showErrorMessage("hime-test : " + virtualDocUri);
+      }
     }
   );
   context.subscriptions.push(disposable);
@@ -203,7 +203,7 @@ class Playground implements Hime.ProcessObserver {
       "utf8"
     );
     let data = {
-      assetsPath: "file://" + this.assetsPath + "/",
+      assetsPath: "vscode-resource://" + this.assetsPath + "/",
       playgroundId: this.identifier,
       state: this.state,
       messages: this.messages,

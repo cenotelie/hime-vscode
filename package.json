@@ -31,7 +31,7 @@
         "onCommand:hime.compile",
         "onCommand:hime.test"
     ],
-    "main": "./target/src/index",
+    "main": "./target/index",
     "files": [],
     "contributes": {
         "configuration": {
@@ -94,11 +94,11 @@
         "vscode-languageclient": "3.3.0"
     },
     "devDependencies": {
-        "@types/node": "^6.0.40",
-        "@types/vscode": "^1.48.0",
-        "prettier": "^2.0.5",
+        "@types/node": "^6.14.13",
+        "@types/vscode": "^1.59.0",
+        "prettier": "^2.3.2",
         "tslint": "^5.20.1",
-        "typescript": "^3.9.7",
+        "typescript": "^3.9.10",
         "vscode-languageclient": "^6.1.3"
     }
 }
